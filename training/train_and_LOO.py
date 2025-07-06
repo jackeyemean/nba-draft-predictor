@@ -7,10 +7,10 @@ from sklearn.model_selection import LeaveOneOut, cross_val_predict
 # ─── Config ─────────────────────────────────────────────────────────────────
 MIN_YEAR    = 2011
 MAX_YEAR    = 2021
-TRAIN_PATH  = "data/cleaned/TRAINING.csv"
+TRAIN_PATH  = "data/cleaned/FINAL_TRAINING.csv"
 OUT_DIR     = "training"   # where to save the .pkl models
 RANDOM_SEED = 100
-N_EST       = 500
+N_EST       = 100
 
 # ─── Position Predicates ─────────────────────────────────────────────────────
 def is_guard_only(pos_str: str) -> bool:
@@ -30,26 +30,22 @@ def is_big(pos_str: str) -> bool:
 # ─── Feature Lists ───────────────────────────────────────────────────────────
 FEATURES = {
     "guards": [
-        # GOOD RESULTS FOR GUARD (consider adding 3pt% and blocks?)
-        "Age", "Height", "Height/Weight",
-        "CT_SOS",
-        "C_TS%", "C_ORB_DRB", "C_AST_TO",
-        "C_BPM", "C_USG%", "C_PER",
-        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_TOV/40", "C_STL/40"
+        "Age", "Height", "Wingspan", "Weight",
+        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
+        "C_BPM", "C_AST%", "C_TOV%",
+        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40"
     ],
     "wings": [
-        "Age", "Height",
-        "CT_SOS",
-        "C_TS%", "C_ORB_DRB", "C_AST_TO",
-        "C_BPM", "C_AST%", "C_TRB%", "C_3PA/40", "C_3P%",
-        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TOV/40", "C_STL/40"
+        "Age", "Height", "Wingspan", "Weight",
+        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
+        "C_BPM", "C_AST%", "C_TOV%",
+        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40"
     ],
     "bigs": [
-        "Age", "Height",
-        "CT_SOS",
-        "C_TS%", "C_ORB_DRB", "C_AST_TO",
-        "C_DBPM", "C_BLK%", "C_TRB%",
-        "C_FGA/40", "C_FTA/40", "C_3PA/40", "C_3P%", "C_PTS/40", "C_AST/40", "C_STL/40", "C_BLK/40"
+        "Age", "Height", "Wingspan", "Weight",
+        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
+        "C_BPM", "C_TRB%", "C_BLK%",
+        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_BLK/40",
     ]
 }
 
@@ -115,5 +111,5 @@ if __name__=="__main__":
 
     # concatenate all LOO results and save
     all_lootests = pd.concat(results, ignore_index=True)
-    all_lootests.to_csv("demo.csv", index=False)
+    all_lootests.to_csv("refined.csv", index=False)
     print("All leave-one-out results in refined.csv")
