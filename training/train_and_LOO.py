@@ -10,7 +10,7 @@ MAX_YEAR    = 2021
 TRAIN_PATH  = "data/cleaned/FINAL_TRAINING.csv"
 OUT_DIR     = "training"   # where to save the .pkl models
 RANDOM_SEED = 100
-N_EST       = 100
+N_EST       = 1000
 
 # ─── Position Predicates ─────────────────────────────────────────────────────
 def is_guard_only(pos_str: str) -> bool:
@@ -30,22 +30,22 @@ def is_big(pos_str: str) -> bool:
 # ─── Feature Lists ───────────────────────────────────────────────────────────
 FEATURES = {
     "guards": [
-        "Age", "Height", "Wingspan", "Weight",
-        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
-        "C_BPM", "C_AST%", "C_TOV%",
-        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40"
+        "Age", "Height", "Weight", "Wingspan",
+        "C_TS%", "C_3P%", "C_AST_TO",
+        "C_BPM",
+        "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40", "C_BLK/40"
     ],
     "wings": [
-        "Age", "Height", "Wingspan", "Weight",
-        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
-        "C_BPM", "C_AST%", "C_TOV%",
-        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40"
+        "Age", "Height", "Weight", "Wingspan",
+        "C_TS%", "C_3P%", "C_AST_TO",
+        "C_BPM",
+        "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40", "C_BLK/40"
     ],
     "bigs": [
-        "Age", "Height", "Wingspan", "Weight",
-        "C_TS%", "C_AST_TO", "C_ORB_DRB", "C_3PAr",
-        "C_BPM", "C_TRB%", "C_BLK%",
-        "C_FGA/40", "C_PTS/40", "C_AST/40", "C_TRB/40", "C_BLK/40",
+        "Age", "Height", "Weight", "Wingspan",
+        "C_TS%", "C_3P%", "C_ORB_DRB",
+        "C_BPM",
+        "C_PTS/40", "C_AST/40", "C_TRB/40", "C_STL/40", "C_BLK/40"
     ]
 }
 
@@ -98,7 +98,7 @@ def train_group(name, predicate):
     joblib.dump(model, path)
     print(f"Saved {name} model to {path}\n")
 
-    return df_out[["Name","Draft Year","POS","Group","Predicted Tier","Actual Tier"]]
+    return df_out[["Pick Number", "Name","Draft Year","POS","Group","Predicted Tier","Actual Tier"]]
 
 if __name__=="__main__":
     results = []
