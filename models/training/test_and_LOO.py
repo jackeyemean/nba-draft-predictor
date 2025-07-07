@@ -8,13 +8,13 @@ from sklearn.model_selection import LeaveOneOut, cross_val_predict
 # ─── Configuration ─────────────────────────────────────────────────────
 MIN_YEAR_LOO      = 2011
 MAX_YEAR_LOO      = 2011
-TEST_YEARS        = [2025]
+TEST_YEARS        = [2022,2023,2024]
 TRAIN_PATH        = "data/cleaned/FINAL_TRAINING.csv"
-TEST_PATH         = "data/cleaned/FINAL_2025.csv"
-GUARD_MODEL_PATH  = "training/guards.pkl"
-WING_MODEL_PATH   = "training/wings.pkl"
-BIG_MODEL_PATH    = "training/bigs.pkl"
-OUTPUT_CSV        = "training/2025.csv"
+TEST_PATH         = "data/cleaned/FINAL_TESTING.csv"
+GUARD_MODEL_PATH  = "models/guards.pkl"
+WING_MODEL_PATH   = "models/wings.pkl"
+BIG_MODEL_PATH    = "models/bigs.pkl"
+OUTPUT_CSV        = "results.csv"
 
 # ─── Position Predicates ────────────────────────────────────────────────
 def is_guard_only(pos_str: str) -> bool:
