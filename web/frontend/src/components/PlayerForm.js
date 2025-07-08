@@ -83,6 +83,8 @@ export default function PlayerForm({ onSubmit }) {
 
   const [name, setName] = useState(saved.name || '');
 
+  const [overridePPG, setOverridePPG] = useState(false);
+
   // whenever position or its specs change, re‐init sliders if no saved state
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('playerForm')) || {};
@@ -123,7 +125,10 @@ export default function PlayerForm({ onSubmit }) {
 
     // dynamic ppg calculation
     const twoPA = fga - tpa;
-    const ppg   = 2 * fgP * twoPA + 3 * tpP * tpa + ftP * fta;
+    const dynamicPPG = 2 * fgP * twoPA + 3 * tpP * tpa + ftP * fta;
+    const ppg = overridePPG
+      ? inputs.PTS_per_game        // use user value
+      : dynamicPPG;               // or auto-calc
 
     const per40 = x => mpg ? (x/mpg)*40 : 0;
 
@@ -143,7 +148,7 @@ export default function PlayerForm({ onSubmit }) {
 
       'C_3P%': tpP,
     };
-  }, [inputs]);
+  }, [inputs, overridePPG]);
 
   // handle slider changes, with clamping logic
   const handleChange = e => {
@@ -211,11 +216,29 @@ export default function PlayerForm({ onSubmit }) {
           {LABELS[feature]}: {display}
         </label>
         <input
-          id={feature} name={feature} type="range"
-          min={min} max={max} step={step}
-         value={raw}
-         disabled={feature === 'PTS_per_game'}
-         onChange={feature === 'PTS_per_game' ? undefined : handleChange}
+          id={feature}
+          name={feature}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={
+            feature === 'PTS_per_game'
+              // PTS slider: either computed or user value
+              ? (overridePPG 
+                  ? inputs.PTS_per_game 
+                  : computed.PTS_per_game)
+              // all the others: raw from inputs
+              : raw
+          }
+          onChange={
+            feature === 'PTS_per_game'
+              // only let handleChange fire if overridePPG is true
+              ? (overridePPG ? handleChange : undefined)
+              // others always use handleChange
+              : handleChange
+          }
+          disabled={feature === 'PTS_per_game' && !overridePPG}
           title={TOOLTIPS[feature] || ''}
           className="w-full"
         />
@@ -292,6 +315,20 @@ export default function PlayerForm({ onSubmit }) {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        {/* PPG Override Toggle */}
+        <div className="flex items-center space-x-2">
+          <input 
+            id="overridePPG" 
+            type="checkbox" 
+            checked={overridePPG} 
+            onChange={e => setOverridePPG(e.target.checked)} 
+            className="h-4 w-4"
+          />
+          <label htmlFor="overridePPG" className="text-sm">
+            Disable PPG Calculation
+          </label>
         </div>
 
         {/* Sliders */}
