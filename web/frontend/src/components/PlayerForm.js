@@ -36,7 +36,7 @@ const TOOLTIPS = {
   'C_FG%':        'Field goal percentage',
   'C_3P%':        'Three-point percentage',
   'C_FT%':        'Free throw percentage',
-  PTS_per_game:   'Points per game (manual input)',
+  PTS_per_game:   'Points per game',
   AST_per_game:   'Assists per game',
   TOV_per_game:   'Turnovers per game',
   OffReb:         'Offensive rebounds per game',
@@ -114,7 +114,6 @@ export default function PlayerForm({ onSubmit }) {
     const fgP = Number(((inputs['C_FG%'] || 0) / 100).toFixed(3));
     const tpP = Number(((inputs['C_3P%'] || 0) / 100).toFixed(3));
     const ftP = Number(((inputs['C_FT%'] || 0) / 100).toFixed(3));
-    const ppg = inputs.PTS_per_game   || 0;
     const ast = inputs.AST_per_game   || 0;
     const tov = inputs.TOV_per_game   || 0;
     const orb = inputs.OffReb         || 0;
@@ -122,9 +121,14 @@ export default function PlayerForm({ onSubmit }) {
     const stl = inputs.STL_per_game   || 0;
     const blk = inputs.BLK_per_game   || 0;
 
+    // dynamic ppg calculation
+    const twoPA = fga - tpa;
+    const ppg   = 2 * fgP * twoPA + 3 * tpP * tpa + ftP * fta;
+
     const per40 = x => mpg ? (x/mpg)*40 : 0;
 
     return {
+      'PTS_per_game': Number(ppg.toFixed(3)),
       'C_PTS/40':  per40(ppg),
       'C_AST/40':  per40(ast),
       'C_TRB/40':  per40(orb + drb),
@@ -182,7 +186,9 @@ export default function PlayerForm({ onSubmit }) {
   // render
   const renderSlider = feature => {
     const cfg = specs[feature];
-    const raw = inputs[feature] ?? cfg.defaultValue;
+   const raw = feature === 'PTS_per_game'
+     ? computed.PTS_per_game
+     : inputs[feature] ?? cfg.defaultValue;
     const isDim = feature === 'Height' || feature === 'Wingspan';
     const step  = isDim ? 1 : 0.1;
     const min   = feature === 'C_MPG'
@@ -207,7 +213,9 @@ export default function PlayerForm({ onSubmit }) {
         <input
           id={feature} name={feature} type="range"
           min={min} max={max} step={step}
-          value={raw} onChange={handleChange}
+         value={raw}
+         disabled={feature === 'PTS_per_game'}
+         onChange={feature === 'PTS_per_game' ? undefined : handleChange}
           title={TOOLTIPS[feature] || ''}
           className="w-full"
         />
@@ -219,9 +227,10 @@ export default function PlayerForm({ onSubmit }) {
                   .filter(([s]) => ['Context', 'Shooting Splits'].includes(s));
   const right = GROUPS[position]
                   .filter(([s]) => ['Per Game Averages'].includes(s));
-  const liveKeys = Object.entries(computed)
-                     .filter(([,v]) => Number.isFinite(v))
-                     .map(([k]) => k);
+ const liveKeys = Object.entries(computed)
+                    // only show truly “live” stats, hide PTS_per_game
+                    .filter(([k, v]) => Number.isFinite(v) && k !== 'PTS_per_game')
+                    .map(([k]) => k);
 
   return (
     <div className="p-6 bg-gray-50 rounded-lg">
