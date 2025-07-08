@@ -5,52 +5,41 @@ const LABELS = {
   'Age':            'Age',
   'Height':         'Height (ft & in)',
   'Weight':         'Weight (lbs)',
-  'CT_Win%':        'College Win %',
-  'CT_SOS':         'Strength of Schedule',
-  'C_GS%':          'Games Started %',
-  'C_MPG':          'MP',
-  'C_USG%':         'Usage %',
-  'C_FG%':          'FG%',
-  'FGA_per_game':   'FGA',
+  'Wingspan':       'Wingspan (ft & in)',
   'C_3P%':          '3P%',
-  '3PA_per_game':   '3PA',
-  'C_FT%':          'FT %',
-  'FTA_per_game':   'FTA',
-  'AST_per_game':   'AST',
-  'STL_per_game':   'STL',
-  'TOV_per_game':   'TOV',
-  'PPG':            'PTS',
-  'OffReb':         'OFF REB',
-  'DefReb':         'DEF REB',
-  'BLK_per_game':   'BLK',
-  'C_AST%':         'AST %',
-  'C_BLK%':         'BLK %',
-  'C_TOV%':         'TOV %',
-  'C_TRB%':         'REB %',
-  'C_OBPM':         'OBPM',
-  'C_DBPM':         'DBPM',
+
   'C_BPM':          'BPM',
-  "C_PER":          'PER'
+  'C_AST_TO':       'AST/TOV',
+  'C_ORB_DRB':      'ORB/DRB',
+
+  'C_3P%':          '3P%',
+  'C_TS%':          'TS%',
+
+  'C_PTS/40':       'PTS/40',
+  'C_AST/40':       'AST/40',
+  'C_TRB/40':       'TRB/40',
+  'C_STL/40':       'STL/40',
+  'C_BLK/40':       'BLK/40'
 };
 
 const GROUPS = {
   'Guards': [
-    ['Info',     ['Age','Height','Weight','CT_Win%','CT_SOS']],
-    ['Advanced',    ['C_USG%','C_OBPM','C_PER']],
-    ['Shooting',    ['C_FG%','FGA_per_game','C_3P%','3PA_per_game','C_FT%','FTA_per_game']],
-    ['Per Game',    ['C_MPG','PPG','AST_per_game','TOV_per_game','STL_per_game','OffReb','DefReb']]
+    ['Info',     ['Age', 'Height', 'Wingspan', 'Weight']],
+    ['Advanced', ['C_BPM', 'C_AST_TO']],
+    ['Shooting', ['C_3P%', 'C_TS%']],
+    ['Per Game', ['C_PTS/40', 'C_AST/40', 'C_TRB/40', 'C_STL/40', 'C_BLK/40']]
   ],
   'Wings': [
-    ['Info',     ['Age','Height','Weight','CT_Win%','CT_SOS']],
-    ['Advanced',    ['C_USG%','C_OBPM','C_PER']],
-    ['Shooting',    ['C_FG%','FGA_per_game','C_3P%','3PA_per_game','C_FT%','FTA_per_game']],
-    ['Per Game',    ['C_MPG','PPG','AST_per_game','TOV_per_game','STL_per_game','OffReb','DefReb']]
+    ['Info',     ['Age', 'Height', 'Wingspan', 'Weight']],
+    ['Advanced', ['C_BPM', 'C_AST_TO']],
+    ['Shooting', ['C_3P%', 'C_TS%']],
+    ['Per Game', ['C_PTS/40', 'C_AST/40', 'C_TRB/40', 'C_STL/40', 'C_BLK/40']]
   ],
   'Bigs': [
-    ['Info',     ['Age','Height','Weight','CT_Win%','CT_SOS']],
-    ['Advanced',    ['C_USG%','C_OBPM','C_PER']],
-    ['Shooting',    ['C_FG%','FGA_per_game','C_FT%','FTA_per_game']],
-    ['Per Game',    ['C_MPG','PPG','AST_per_game','TOV_per_game','STL_per_game','BLK_per_game','OffReb','DefReb']]
+    ['Info',     ['Age', 'Height', 'Wingspan', 'Weight']],
+    ['Advanced', ['C_BPM', 'C_ORB_DRB']],
+    ['Shooting', ['C_3P%', 'C_TS%']],
+    ['Per Game', ['C_PTS/40', 'C_AST/40', 'C_TRB/40', 'C_STL/40', 'C_BLK/40']]
   ]
 };
 
@@ -73,14 +62,39 @@ export default function PlayerForm({ onSubmit }) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit(position, inputs, name.trim() || null);
+
+    // ─── Minimal mapping layer ────────────────────────────────
+    const payload = {};
+    Object.entries(inputs).forEach(([key, val]) => {
+      switch (key) {
+        case 'TS%':     payload['C_TS%']   = val; break;
+        case '3P%':     payload['C_3P%']   = val; break;
+        case 'AST/TO':  payload['C_AST_TO']= val; break;
+        case 'ORB/DRB': payload['C_ORB_DRB']= val; break;
+        case 'BPM':     payload['C_BPM']   = val; break;
+        case 'PTS/40':  payload['C_PTS/40'] = val; break;
+        case 'AST/40':  payload['C_AST/40'] = val; break;
+        case 'REB/40':  payload['C_TRB/40'] = val; break;
+        case 'STL/40':  payload['C_STL/40'] = val; break;
+        case 'BLK/40':  payload['C_BLK/40'] = val; break;
+        default:        payload[key]        = val;
+      }
+    });
+    // ────────────────────────────────────────────────────────────
+
+    onSubmit(position, payload, name.trim() || null);
     setName('');
   };
 
   const renderSlider = feature => {
     const cfg = specs[feature];
     const raw = inputs[feature] ?? cfg.defaultValue;
-    const display = feature === 'Height'
+
+    const isDim = feature === 'Height' || feature === 'Wingspan';
+    const step  = isDim ? 1   // 1" for Height/Wingspan
+                      : 0.1; // 0.1 for everything else
+
+    const display = isDim
       ? `${Math.floor(raw/12)}′ ${raw % 12}″`
       : raw.toFixed(1);
 
@@ -95,7 +109,7 @@ export default function PlayerForm({ onSubmit }) {
           type="range"
           min={cfg.min}
           max={cfg.max}
-          step={(cfg.max - cfg.min) / 100 || 1}
+          step={step}
           value={raw}
           onChange={handleChange}
           className="w-full"
@@ -104,11 +118,10 @@ export default function PlayerForm({ onSubmit }) {
     );
   };
 
-  // split into left/right
   const allSections = GROUPS[position];
-  const LEFT_KEYS = ['Info','Advanced'];
-  const left  = allSections.filter(([sec]) => LEFT_KEYS.includes(sec));
-  const right = allSections.filter(([sec]) => !LEFT_KEYS.includes(sec));
+  const LEFT_KEYS   = ['Info','Advanced'];
+  const left        = allSections.filter(([sec]) => LEFT_KEYS.includes(sec));
+  const right       = allSections.filter(([sec]) => !LEFT_KEYS.includes(sec));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -145,24 +158,17 @@ export default function PlayerForm({ onSubmit }) {
             <section key={section} className="space-y-2 mb-6">
               <h3 className="font-semibold">{section}</h3>
               <div className="flex flex-col">
-                {fields
-                  .filter(f => f in specs)
-                  .map(renderSlider)
-                }
+                {fields.filter(f => f in specs).map(renderSlider)}
               </div>
             </section>
           ))}
         </div>
-
         <div>
           {right.map(([section, fields]) => (
             <section key={section} className="space-y-2 mb-6">
               <h3 className="font-semibold">{section}</h3>
               <div className="flex flex-col">
-                {fields
-                  .filter(f => f in specs)
-                  .map(renderSlider)
-                }
+                {fields.filter(f => f in specs).map(renderSlider)}
               </div>
             </section>
           ))}
