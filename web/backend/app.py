@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://nba-draft-predictor.onrender.com/"
+    "https://nba-draft-predictor.onrender.com"
 ]}})
 
 FEATURES = {
