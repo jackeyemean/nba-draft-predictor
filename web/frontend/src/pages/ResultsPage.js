@@ -1,3 +1,4 @@
+// ResultsPage.js
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { fetchAllResults, predict } from '../api';
 import PlayerForm from '../components/PlayerForm';
@@ -10,18 +11,16 @@ export default function ResultsPage() {
   const [highlightName, setHighlightName] = useState(null);
   const tableRef = useRef(null);
 
-  // load historical data once
   useEffect(() => {
     fetchAllResults()
       .then(res => setHistData(res.data || []))
       .catch(console.error);
   }, []);
 
-  // create new player
   const handleCreate = async (code, inputs, name) => {
     try {
       const { data } = await predict({ ...inputs, 'Position Group': code });
-      const pred  = data['Predicted Score'];
+      const pred = data['Predicted Score'];
       const group =
         code === 'Guards' ? 'Guard' :
         code === 'Wings'  ? 'Wing'  : 'Big';
@@ -42,13 +41,11 @@ export default function ResultsPage() {
     }
   };
 
-  // merge data
   const combined = useMemo(
     () => [...customPlayers, ...histData],
     [customPlayers, histData]
   );
 
-  // filters — default year to 2025
   const [yearFilter, setYearFilter]   = useState('2025');
   const [groupFilter, setGroupFilter] = useState('All');
 
@@ -63,7 +60,6 @@ export default function ResultsPage() {
     [histData]
   );
 
-  // filtered view (custom always shown)
   const filtered = useMemo(
     () => combined.filter(d => {
       const isCustom = customPlayers.some(p => p.Name === d.Name);
@@ -77,43 +73,44 @@ export default function ResultsPage() {
     [combined, customPlayers, yearFilter, groupFilter]
   );
 
-  // scroll to new
   useEffect(() => {
     if (!highlightName || !tableRef.current) return;
-    const row = tableRef.current.querySelector(`tr[data-name="${highlightName}"]`);
+    const row = tableRef.current.querySelector(
+      `tr[data-name="${highlightName}"]`
+    );
     row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [highlightName]);
 
   return (
     <div className="space-y-6">
       {/* Create New Player */}
-      <section className="bg-white rounded shadow">
+      <section className="bg-white rounded shadow-sm">
         <div
           onClick={() => setFormOpen(o => !o)}
-          className="flex justify-between items-center p-4 border-b cursor-pointer hover:bg-gray-50"
+          className="flex justify-between items-center p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100"
         >
-          <h2 className="text-xl font-semibold">Create New Player</h2>
-          <span className="text-2xl">{formOpen ? '▲' : '▼'}</span>
+          <h2 className="text-xl font-semibold text-gray-800">Create New Player</h2>
+          <span className="text-2xl text-gray-600">{formOpen ? '▲' : '▼'}</span>
         </div>
         {formOpen && (
-          <div className="p-6">
+          <div className="p-6 bg-gray-50 rounded-b-lg">
             <PlayerForm onSubmit={handleCreate} />
           </div>
         )}
       </section>
 
       {/* Results (filters + table) */}
-      <section className="bg-white rounded shadow p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Results</h2>
+      <section className="bg-white rounded shadow-sm p-6 space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800">Results</h2>
 
         {/* Filters */}
-        <div className="flex items-end space-x-6">
+        <div className="flex flex-wrap items-end gap-6">
           <div>
-            <label className="block font-medium mb-1">Draft Year</label>
+            <label className="block font-medium mb-1 text-gray-700">Draft Year</label>
             <select
               value={yearFilter}
               onChange={e => setYearFilter(e.target.value)}
-              className="border p-1 rounded"
+              className="border p-2 rounded bg-white"
             >
               <option>All</option>
               {years.map(y => (
@@ -122,11 +119,11 @@ export default function ResultsPage() {
             </select>
           </div>
           <div>
-            <label className="block font-medium mb-1">Position Group</label>
+            <label className="block font-medium mb-1 text-gray-700">Position</label>
             <select
               value={groupFilter}
               onChange={e => setGroupFilter(e.target.value)}
-              className="border p-1 rounded"
+              className="border p-2 rounded bg-white"
             >
               <option>All</option>
               {groups.map(g => (
@@ -137,7 +134,10 @@ export default function ResultsPage() {
         </div>
 
         {/* Table */}
-        <div ref={tableRef} className="overflow-y-auto max-h-[60vh]">
+        <div
+          ref={tableRef}
+          className="overflow-y-auto max-h-[60vh]"
+        >
           <ResultsTable
             data={filtered}
             highlightNames={customPlayers.map(p => p.Name)}
