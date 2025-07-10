@@ -26,16 +26,17 @@ export default function ResultsTable({
 
   return (
     <div className="p-4 bg-surface-light dark:bg-surface-dark rounded shadow">
-      <div className="overflow-x-auto">
+      {/* now scrolling happens here */}
+      <div className="overflow-auto max-h-[60vh] overflow-x-auto">
         <table {...getTableProps()} className="min-w-full border-collapse">
-          <thead className="bg-bg-light dark:bg-bg-dark">
-            {headerGroups.map((hg,i)=>(
+          <thead>
+            {headerGroups.map((hg,i) => (
               <tr {...hg.getHeaderGroupProps()} key={i}>
-                {hg.headers.map((col,j)=>(
+                {hg.headers.map((col,j) => (
                   <th
                     {...col.getHeaderProps(col.getSortByToggleProps())}
                     key={j}
-                    className="sticky top-0 px-4 py-2 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase border-b border-gray-300 dark:border-gray-600"
+                    className="sticky top-0 z-10 bg-bg-light dark:bg-bg-dark px-4 py-2 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase border-b border-gray-300 dark:border-gray-600"
                   >
                     <div className="flex items-center">
                       <span className="flex flex-col space-y-0.5 mr-1">

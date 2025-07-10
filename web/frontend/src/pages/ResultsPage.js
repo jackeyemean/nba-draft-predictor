@@ -44,7 +44,17 @@ export default function ResultsPage() {
       const pred = data['Predicted Score'];
       const group = code === 'Guards' ? 'Guard'
                   : code === 'Wings'  ? 'Wing'  : 'Big';
-      const finalName = name || `Player ${customPlayers.length + 1}`;
+
+      // ensure unique name
+      const base = (name?.trim() || `Player ${customPlayers.length + 1}`);
+      let unique = base;
+      let i = 1;
+      const existing = customPlayers.map(p => p.Name);
+      while (existing.includes(unique)) {
+        unique = `${base} ${i++}`;
+      }
+      const finalName = unique;
+
       const newP = {
         Name: finalName,
         'Draft Year': 2025,
@@ -116,7 +126,7 @@ export default function ResultsPage() {
             </select>
           </div>
         </div>
-        <div ref={tableRef} className="overflow-y-auto max-h-[60vh]">
+        <div ref={tableRef}>
           <ResultsTable data={filtered} highlightNames={customPlayers.map(p=>p.Name)} />
         </div>
       </section>
