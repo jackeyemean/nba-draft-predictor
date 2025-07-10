@@ -1,4 +1,4 @@
-// ResultsPage.js
+/* ResultsPage.js */
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { fetchAllResults, predict } from '../api';
 import PlayerForm from '../components/PlayerForm';
@@ -34,6 +34,7 @@ export default function ResultsPage() {
       };
       setCustomPlayers(prev => [newP, ...prev]);
       setHighlightName(finalName);
+      setGroupFilter(group);
       setFormOpen(false);
     } catch (err) {
       console.error(err);
@@ -84,7 +85,7 @@ export default function ResultsPage() {
   return (
     <div className="space-y-6">
       {/* Create New Player */}
-      <section className="bg-white rounded shadow-sm">
+      <section className="bg-white rounded shadow-sm mt-6">
         <div
           onClick={() => setFormOpen(o => !o)}
           className="flex justify-between items-center p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100"

@@ -1,4 +1,4 @@
-// ResultsTable.js
+/* ResultsTable.js */
 import React, { useMemo } from 'react';
 import { useTable, useSortBy } from 'react-table';
 
@@ -47,9 +47,8 @@ export default function ResultsTable({
                     key={j}
                     className="sticky top-0 px-4 py-2 text-left text-sm font-semibold text-gray-800 uppercase border-b border-gray-200"
                   >
-                    <div className="flex items-center justify-between">
-                      <span>{col.render('Header')}</span>
-                      <span className="flex flex-col space-y-0.5">
+                    <div className="flex items-center">
+                      <span className="flex flex-col space-y-0.5 mr-1">
                         {col.isSorted ? (
                           col.isSortedDesc ? (
                             <svg className="w-4 h-4 text-gray-800" viewBox="0 0 20 20" fill="currentColor">
@@ -71,6 +70,7 @@ export default function ResultsTable({
                           </div>
                         )}
                       </span>
+                      <span>{col.render('Header')}</span>
                     </div>
                   </th>
                 ))}
@@ -84,7 +84,7 @@ export default function ResultsTable({
               const pick     = row.original['Pick Number'];
               const isCustom = pick === '—';
               const isMatch  = highlightNames.includes(name);
-              const bgClass  = isMatch || isCustom ? 'bg-gray-200' : '';
+              const bgClass  = isMatch || isCustom ? 'bg-orange-100' : '';
               const hoverCls = isCustom ? '' : 'hover:bg-gray-100';
               return (
                 <tr
