@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Scrollbar */
+:root {
+  --sb-track: #F3F4F6;
+  --sb-thumb: #6B7280;
+}
+.dark {
+  --sb-track: #1F2937;
+  --sb-thumb: #9CA3AF;
+}
+::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sb-track);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--sb-thumb);
+  border-radius: 4px;
+}
+
+/* Range inputs */
+:root {
+  --track-light: #D1D5DB;
+  --thumb-light: #6B7280;
+  --track-dark:  #4B5563;
+  --thumb-dark:  #9CA3AF;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%; background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--track-light);
+  border-radius: 3px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: var(--thumb-light);
+  border-radius: 50%; margin-top: -5px;
+}
+.dark input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--track-dark);
+}
+.dark input[type="range"]::-webkit-slider-thumb {
+  background: var(--thumb-dark);
+}

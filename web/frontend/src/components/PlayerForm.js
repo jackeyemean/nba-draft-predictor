@@ -1,4 +1,4 @@
-/* PlayerForm.js */
+// src/components/PlayerForm.js
 import React, { useState, useEffect, useMemo } from 'react';
 import { FEATURE_RANGES } from '../constants';
 
@@ -26,27 +26,29 @@ const LABELS = {
 
 const GROUPS = {
   Guards: [
-    ['Context', ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
+    ['Context',         ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
     ['Shooting Splits', ['C_FG%','C_3P%','C_FT%']],
-    ['Per Game Averages', ['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
+    ['Per Game Averages',['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
   ],
   Wings: [
-    ['Context', ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
+    ['Context',         ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
     ['Shooting Splits', ['C_FG%','C_3P%','C_FT%']],
-    ['Per Game Averages', ['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
+    ['Per Game Averages',['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
   ],
   Bigs: [
-    ['Context', ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
+    ['Context',         ['Age','Height','Wingspan','Weight','C_MPG','C_BPM']],
     ['Shooting Splits', ['C_FG%','C_3P%','C_FT%']],
-    ['Per Game Averages', ['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
-  ]
+    ['Per Game Averages',['PTS_per_game','AST_per_game','TOV_per_game','OffReb','DefReb','STL_per_game','BLK_per_game','FGA_per_game','3PA_per_game','FTA_per_game']]
+  ],
 };
 
 export default function PlayerForm({ onSubmit }) {
   const saved = JSON.parse(localStorage.getItem('playerForm')) || {};
-  const [position, setPosition] = useState(saved.position || 'Guards');
+  const initialPosition = FEATURE_RANGES[saved.position] ? saved.position : 'Guards';
+  const [position, setPosition] = useState(initialPosition);
   const specs = FEATURE_RANGES[position];
 
+  // raw inputs, including PTS_per_game
   const [inputs, setInputs] = useState(() => {
     if (saved.position === position && saved.inputs) return saved.inputs;
     return Object.fromEntries(
@@ -54,74 +56,107 @@ export default function PlayerForm({ onSubmit }) {
     );
   });
   const [name, setName] = useState(saved.name || '');
-  const [overridePPG, setOverridePPG] = useState(false);
+  const [manualPTS, setManualPTS] = useState(false);
 
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('playerForm')) || {};
-    if (stored.position === position && stored.inputs) {
-      setInputs(stored.inputs);
-    } else {
-      setInputs(
-        Object.fromEntries(
-          Object.entries(specs).map(([k, cfg]) => [k, cfg.defaultValue])
-        )
-      );
-    }
-  }, [position, specs]);
-
+  // persist
   useEffect(() => {
     localStorage.setItem('playerForm', JSON.stringify({ position, inputs, name }));
   }, [position, inputs, name]);
 
+  // reset inputs on position change
+  useEffect(() => {
+    setInputs(
+      Object.fromEntries(
+        Object.entries(specs).map(([k, cfg]) => [k, cfg.defaultValue])
+      )
+    );
+    setManualPTS(false);
+  }, [position, specs]);
+
+  // compute dynamic metrics and respect manualPTS override for PTS
   const computed = useMemo(() => {
     const mpg = Math.max(inputs.C_MPG || 1, 1);
-    const fga = inputs.FGA_per_game || 0;
-    const fta = inputs.FTA_per_game || 0;
+    const fga = inputs.FGA_per_game   || 0;
+    const fta = inputs.FTA_per_game   || 0;
     const tpa = Math.min(inputs['3PA_per_game'] || 0, fga);
-    const fgP = (inputs['C_FG%'] || 0) / 100;
-    const tpP = (inputs['C_3P%'] || 0) / 100;
-    const ftP = (inputs['C_FT%'] || 0) / 100;
-    const ast = inputs.AST_per_game || 0;
-    const tov = inputs.TOV_per_game || 0;
-    const orb = inputs.OffReb || 0;
-    const drb = inputs.DefReb || 0;
-    const stl = inputs.STL_per_game || 0;
-    const blk = inputs.BLK_per_game || 0;
+    const fgP = (inputs['C_FG%'] || 0)   / 100;
+    const tpP = (inputs['C_3P%'] || 0)   / 100;
+    const ftP = (inputs['C_FT%'] || 0)   / 100;
+    const ast = inputs.AST_per_game      || 0;
+    const tov = inputs.TOV_per_game      || 0;
+    const orb = inputs.OffReb            || 0;
+    const drb = inputs.DefReb            || 0;
+    const stl = inputs.STL_per_game      || 0;
+    const blk = inputs.BLK_per_game      || 0;
 
-    const dynamicPPG = 2 * fgP * (fga - tpa) + 3 * tpP * tpa + ftP * fta;
-    const ppg = overridePPG ? inputs.PTS_per_game : dynamicPPG;
-    const per40 = x => (mpg ? (x / mpg) * 40 : 0);
+    const dynamicPTS = 2 * fgP * (fga - tpa)
+                     + 3 * tpP * tpa
+                     + ftP * fta;
+    // choose PTS based on manual override
+    const ppg = manualPTS
+      ? inputs.PTS_per_game
+      : dynamicPTS;
+
+    const per40 = x => mpg ? (x / mpg) * 40 : 0;
 
     return {
-      'PTS_per_game': Number(ppg.toFixed(3)),
-      'C_PTS/40': Number(per40(ppg).toFixed(3)),
-      'C_AST/40': Number(per40(ast).toFixed(3)),
-      'C_TRB/40': Number(per40(orb + drb).toFixed(3)),
-      'C_STL/40': Number(per40(stl).toFixed(3)),
-      'C_BLK/40': Number(per40(blk).toFixed(3)),
-      'C_AST_TO': tov ? Number((ast / tov).toFixed(3)) : 0,
-      'C_ORB_DRB': drb ? Number((orb / drb).toFixed(3)) : 0,
-      'C_TS%': (() => {
-        const denom = fga + 0.44 * fta;
-        return denom ? Number((ppg / (2 * denom)).toFixed(3)) : 0;
-      })(),
-      'C_3P%': tpP
+      PTS_per_game: ppg,
+      'C_PTS/40':  per40(ppg),
+      'C_AST/40':  per40(ast),
+      'C_TRB/40':  per40(orb + drb),
+      'C_STL/40':  per40(stl),
+      'C_BLK/40':  per40(blk),
+      'C_AST_TO':  tov ? ast / tov             : 0,
+      'C_ORB_DRB': drb ? orb / drb             : 0,
+      'C_TS%':     (() => {
+                      const denom = fga + 0.44 * fta;
+                      return denom ? ppg / (2 * denom) : 0;
+                   })(),
+      'C_3P%':     tpP,
     };
-  }, [inputs, overridePPG]);
+  }, [inputs, manualPTS]);
+
+  // whenever computed.PTS_per_game changes and not manual, sync into inputs
+  useEffect(() => {
+    if (!manualPTS) {
+      setInputs(prev => ({ ...prev, PTS_per_game: Number(computed.PTS_per_game.toFixed(3)) }));
+    }
+  }, [computed.PTS_per_game, manualPTS]);
+
+  const shootingKeys = [
+    'FGA_per_game','3PA_per_game','FTA_per_game',
+    'C_FG%','C_3P%','C_FT%'
+  ];
 
   const handleChange = e => {
     const { name, value } = e.target;
     const num = Number(value);
+
+    // user moved PTS slider
+    if (name === 'PTS_per_game') {
+      setManualPTS(true);
+      setInputs(prev => ({ ...prev, [name]: num }));
+      return;
+    }
+
+    // any shooting slider resets manual override
+    if (shootingKeys.includes(name)) {
+      setManualPTS(false);
+    }
+
     setInputs(prev => {
       const u = { ...prev };
-      if (name === 'C_MPG') u.C_MPG = Math.max(num, 1);
-      else if (name === 'FGA_per_game') {
+      if (name === 'C_MPG') {
+        u.C_MPG = Math.max(num, 1);
+      } else if (name === 'FGA_per_game') {
         u.FGA_per_game = num;
         u['3PA_per_game'] = Math.min(prev['3PA_per_game'] || 0, num);
       } else if (name === '3PA_per_game') {
         const cap = prev.FGA_per_game || specs.FGA_per_game.defaultValue;
         u['3PA_per_game'] = Math.min(num, cap);
-      } else u[name] = num;
+      } else {
+        u[name] = num;
+      }
       return u;
     });
   };
@@ -132,28 +167,42 @@ export default function PlayerForm({ onSubmit }) {
       position,
       {
         ...computed,
-        Age: inputs.Age,
-        Height: inputs.Height,
-        Weight: inputs.Weight,
-        Wingspan: inputs.Wingspan,
-        C_BPM: inputs.C_BPM,
-        'Position Group': position
+        Age:       inputs.Age,
+        Height:    inputs.Height,
+        Weight:    inputs.Weight,
+        Wingspan:  inputs.Wingspan,
+        C_BPM:     inputs.C_BPM,
       },
       name.trim() || null
     );
   };
 
+  // split into left/right sections
+  const groupDef = GROUPS[position];
+  const left  = groupDef.filter(([sec]) => sec !== 'Per Game Averages');
+  const right = groupDef.filter(([sec]) => sec === 'Per Game Averages');
+
+  // keys for live table
+  const liveKeys = Object.keys(computed).filter(k => k !== 'PTS_per_game');
+
   const renderSlider = feature => {
     const cfg = specs[feature];
-    const raw = feature === 'PTS_per_game' ? computed.PTS_per_game : inputs[feature] ?? cfg.defaultValue;
+    const raw = inputs[feature] ?? cfg.defaultValue;
     const isDim = feature === 'Height' || feature === 'Wingspan';
-    const step = isDim ? 1 : 0.1;
-    const min = feature === 'C_MPG' ? 1 : cfg.min;
-    const max = feature === '3PA_per_game' ? inputs.FGA_per_game || cfg.max : cfg.max;
-    const display = isDim ? `${Math.floor(raw/12)}′ ${raw%12}″` : raw.toFixed(1);
+    const step  = isDim ? 1 : 0.1;
+    const min   = feature === 'C_MPG' ? 1 : cfg.min;
+    const max   = feature === '3PA_per_game'
+      ? inputs.FGA_per_game || cfg.max
+      : cfg.max;
+    const display = isDim
+      ? `${Math.floor(raw/12)}′ ${raw % 12}″`
+      : raw.toFixed(1);
+
     return (
       <div key={feature} className="flex flex-col">
-        <label htmlFor={feature} className="text-sm font-medium mb-1 whitespace-pre">{LABELS[feature]}: {display}</label>
+        <label htmlFor={feature} className="text-sm font-medium mb-1 whitespace-pre">
+          {LABELS[feature]}: {display}
+        </label>
         <input
           id={feature}
           name={feature}
@@ -162,97 +211,118 @@ export default function PlayerForm({ onSubmit }) {
           max={max}
           step={step}
           value={raw}
-          onChange={feature==='PTS_per_game' ? (overridePPG ? handleChange : undefined) : handleChange}
-          disabled={feature==='PTS_per_game' && !overridePPG}
+          onChange={handleChange}
           className="w-full"
         />
       </div>
     );
   };
 
-  const left = GROUPS[position].filter(([s]) => ['Context','Shooting Splits'].includes(s));
-  const right = GROUPS[position].filter(([s]) => ['Per Game Averages'].includes(s));
-  const liveKeys = Object.keys(computed).filter(k => k !== 'PTS_per_game');
-
   return (
-    <div className="p-6 bg-gray-50 rounded-lg flex flex-col h-full font-sans antialiased">
-      <form onSubmit={handleSubmit} className="flex flex-col h-full">
-        <div className="overflow-y-auto flex-1 space-y-4">
-          {/* Name & Position */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Prospect Name</label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded"
-                placeholder="Optional"
-                value={name}
-                onChange={e => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Position Group</label>
-              <select
-                className="w-full p-2 border rounded"
-                value={position}
-                onChange={e => setPosition(e.target.value)}
-              >
-                <option>Guards</option>
-                <option>Wings</option>
-                <option>Bigs</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Live Stats */}
-          <div className="bg-white shadow rounded-lg overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>{liveKeys.map(k => <th key={k} className="px-2 py-1 text-xs text-gray-500 uppercase text-left">{k}</th>)}</tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200 odd:bg-gray-50">
-                <tr>{liveKeys.map(k => <td key={k} className="px-2 py-1 text-sm text-gray-700 text-left">{(['C_TS%','C_3P%','C_AST_TO','C_ORB_DRB'].includes(k) ? computed[k].toFixed(3) : computed[k].toFixed(1))}</td>)}</tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* PPG Override Toggle */}
-          <div className="flex items-center space-x-2">
+    <div className="p-6 bg-surface-light dark:bg-surface-dark rounded-lg text-gray-900 dark:text-gray-100 space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Name & Position */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-semibold mb-1">Prospect Name</label>
             <input
-              id="overridePPG"
-              type="checkbox"
-              checked={overridePPG}
-              onChange={e => setOverridePPG(e.target.checked)}
-              className="h-4 w-4"
+              type="text"
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-0"
+              placeholder="Optional"
+              value={name}
+              onChange={e => setName(e.target.value)}
             />
-            <label htmlFor="overridePPG" className="text-sm">Disable PPG Calculation</label>
           </div>
-
-          {/* Sliders */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              {left.map(([sec, fields]) => (
-                <div key={sec} className={sec === 'Context' ? 'space-y-4 mb-8' : 'space-y-4'}>
-                  <h3 className="text-base font-semibold">{sec}</h3>
-                  <div className="space-y-4">{fields.filter(f => f in specs).map(renderSlider)}</div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-4">
-              {right.map(([sec, fields]) => (
-                <div key={sec} className="space-y-4">
-                  <h3 className="text-base font-semibold">{sec}</h3>
-                  <div className="space-y-4">{fields.filter(f => f in specs).map(renderSlider)}</div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <label className="block text-sm font-semibold mb-1">Position Group</label>
+            <select
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-bg-light dark:bg-bg-dark text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-0"
+              value={position}
+              onChange={e => setPosition(e.target.value)}
+            >
+              <option>Guards</option>
+              <option>Wings</option>
+              <option>Bigs</option>
+            </select>
           </div>
         </div>
-        {/* Spacer to push button lower */}
-        <div className="h-7" />
+
+        {/* Live Per 40 Minutes */}
+        <div className="space-y-1">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Per 40 Minutes
+          </label>
+          <div className="bg-bg-light dark:bg-bg-dark border border-gray-300 dark:border-gray-600 rounded px-2 py-1 overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+            <thead className="bg-surface-light dark:bg-surface-dark">
+              <tr>
+                {liveKeys.map(k => (
+                  <th
+                    key={k}
+                    className="px-2 py-1 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300 text-left"
+                  >
+                    {({
+                       'C_PTS/40': 'Points',
+                       'C_AST/40': 'Assists',
+                       'C_TRB/40': 'Rebounds',
+                       'C_STL/40': 'Steals',
+                       'C_BLK/40': 'Blocks',
+                       'C_AST_TO': 'Assists / Turnovers',
+                       'C_ORB_DRB':'Off/Def Rebounds',
+                       'C_TS%':    'True Shooting %',
+                       'C_3P%':    '3 Point %'
+                    }[k] || k)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+              <tr className="bg-bg-light dark:bg-bg-dark">
+                {liveKeys.map(k => (
+                  <td
+                    key={k}
+                    className="px-2 py-1 text-sm text-gray-900 dark:text-gray-100"
+                  >
+                    {(['C_TS%','C_3P%','C_AST_TO','C_ORB_DRB'].includes(k)
+                      ? computed[k].toFixed(3)
+                      : computed[k].toFixed(1)
+                    )}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        {/* Sliders */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {left.map(([section, fields]) => (
+              <div key={section}>
+                <h3 className="text-base font-semibold mb-2">{section}</h3>
+                <div className="space-y-4">
+                  {fields.filter(f => f in specs).map(renderSlider)}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-6">
+            {right.map(([section, fields]) => (
+              <div key={section}>
+                <h3 className="text-base font-semibold mb-2">{section}</h3>
+                <div className="space-y-4">
+                  {fields.filter(f => f in specs).map(renderSlider)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Submit */}
         <button
           type="submit"
-          className="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded py-2 w-full"
+          className="bg-accent text-white dark:bg-accent-dark dark:text-gray-100 font-semibold rounded py-2 w-full"
         >
           PREDICT NBA CAREER
         </button>
