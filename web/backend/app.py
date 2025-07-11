@@ -9,7 +9,6 @@ from models import models
 
 app = Flask(__name__)
 
-# CORS
 CORS(app, resources={r"/api/*": {"origins": [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -18,7 +17,7 @@ CORS(app, resources={r"/api/*": {"origins": [
 
 # rate-limiting
 limiter = Limiter(
-    app,
+    app=app,
     key_func=get_remote_address,
     default_limits=["100 per hour"]
 )
@@ -56,11 +55,13 @@ RENAME = {
     "BLK/40":  "C_BLK/40"
 }
 
-df = pd.read_csv(Path(__file__).parent / "results.csv").replace({np.nan: None})
+# Load and sanitize results.csv
+df = pd.read_csv(Path(__file__).parent / "results.csv")
+df = df.replace({np.nan: None})
 
 @app.before_request
 def check_allowed_referer():
-    # extra server-side guard beyond CORS
+    # Server-side referer guard
     referer = request.headers.get("Referer", "")
     allowed = (
         referer.startswith("http://localhost:3000") or
@@ -70,7 +71,7 @@ def check_allowed_referer():
         abort(403)
 
 @app.route("/api/results")
-@limiter.limit("50 per minute")     # per-endpoint override
+@limiter.limit("50 per minute")
 def get_results():
     year = request.args.get("year", type=int)
     filtered = df if year is None else df[df["Draft Year"] == year]
