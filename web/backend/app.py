@@ -1,18 +1,27 @@
-# app.py
-
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from models import models
 
 app = Flask(__name__)
+
+# CORS
 CORS(app, resources={r"/api/*": {"origins": [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://nba-draft-predictor.onrender.com"
 ]}})
+
+# rate-limiting
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["100 per hour"]
+)
 
 FEATURES = {
     "Guards": [
@@ -47,17 +56,28 @@ RENAME = {
     "BLK/40":  "C_BLK/40"
 }
 
-# load and sanitize results.csv
-df = pd.read_csv(Path(__file__).parent / "results.csv")
-df = df.replace({np.nan: None})
+df = pd.read_csv(Path(__file__).parent / "results.csv").replace({np.nan: None})
+
+@app.before_request
+def check_allowed_referer():
+    # extra server-side guard beyond CORS
+    referer = request.headers.get("Referer", "")
+    allowed = (
+        referer.startswith("http://localhost:3000") or
+        referer.startswith("https://nba-draft-predictor.onrender.com")
+    )
+    if request.path.startswith("/api/") and not allowed:
+        abort(403)
 
 @app.route("/api/results")
+@limiter.limit("50 per minute")     # per-endpoint override
 def get_results():
     year = request.args.get("year", type=int)
     filtered = df if year is None else df[df["Draft Year"] == year]
     return jsonify(filtered.to_dict(orient="records"))
 
 @app.route("/api/predict", methods=["POST"])
+@limiter.limit("30 per minute")
 def predict():
     data = request.json or {}
 
