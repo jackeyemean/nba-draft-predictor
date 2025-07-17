@@ -1,3 +1,19 @@
+## NBA Draft Predictor
+
+Try it out and see what it thinks about recent NBA drafts!
+
+https://nba-draft-predictor.onrender.com/
+
+Prospects were predicted using Random Forest Regressors trained on data scraped from [BasketballReference](https://www.basketballreference.com/) (NBA data) and [SportsReference](https://www.sports-reference.com/) (college data).
+
+Players are split into general positions (guards, wings, bigs) and passed into position-specific models trained on college prospects drafted from 2011 to 2021. The predictions for older drafts were done using leave-one-out cross validation. 
+
+For those we are interested in the:
+    - [Scraper](scraper/README.md)
+    - [Models](models/README.md)
+    - [Frontend](models/README.md)
+    - [Backend](models/README.md)
+
 ## Project Structure
 
 ```
