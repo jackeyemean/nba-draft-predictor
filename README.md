@@ -6,9 +6,9 @@ https://nba-draft-predictor.onrender.com/
 
 Prospects were predicted using random forest regressors trained on data scraped from basketball & sports reference.
 
-Players are split into general positions (guards, wings, bigs) and passed into position-specific models trained on college prospects drafted from 2011 to 2021. The predictions for older drafts were done using leave-one-out cross validation.
+Players are split into general positions (guards, wings, bigs) and passed into position-specific models trained on college prospects drafted from 2011-2021. The predictions displayed for 2011-2021 drafts were done using leave-one-out cross validation.
 
-For those we are interested in the:
+For those who are interested in the:
 
 - [Scraper](scraper/README.md)  
 - [Models](models/README.md)  
