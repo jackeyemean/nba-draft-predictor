@@ -15,6 +15,11 @@ For those who are interested in the:
 - [Frontend](web/frontend/README.md)  
 - [Backend](web/backend/README.md)  
 
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International Public License.  
+See [LICENSE](LICENSE) for the full terms.
+
 ## Project Structure
 
 ```
