@@ -1,0 +1,7 @@
+Metric,Value
+Top-Tier Accuracy,13.3%
+Tier 5/7 Accuracy (3.0+),60.2%
+Overall Correlation,0.511
+MAE,1.684
+RMSE,2.046
+R²,0.257
