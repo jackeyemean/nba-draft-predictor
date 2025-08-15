@@ -261,16 +261,16 @@ def create_visualizations(df):
     
     # 4. Top-tier identification confusion matrix
     plt.figure(figsize=(8, 6))
-    top_tier_threshold = 5
-    actual_top_tier = df['Actual Tier'] >= top_tier_threshold
-    predicted_top_tier = df['Predicted Score'] >= top_tier_threshold
+    # Match the superstar identification logic: actual tier 5 or 7, predicted 3.0+
+    actual_top_tier = df['Actual Tier'] >= 5
+    predicted_top_tier = df['Predicted Score'] >= 3.0
     
     from sklearn.metrics import confusion_matrix
     cm = confusion_matrix(actual_top_tier, predicted_top_tier)
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
                 xticklabels=['Not Top-Tier', 'Top-Tier'],
                 yticklabels=['Not Top-Tier', 'Top-Tier'])
-    plt.title('Top-Tier Identification Confusion Matrix')
+    plt.title('Top-Tier Identification Confusion Matrix (Tier 5/7 vs 3.0+ predicted)')
     plt.xlabel('Predicted')
     plt.ylabel('Actual')
     plt.tight_layout()
