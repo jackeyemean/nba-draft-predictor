@@ -51,9 +51,7 @@ Based on historical data from 2011-2021 drafts, the model demonstrates strong pr
 - **Mean Absolute Error**: 1.68 tiers
 - **Tier 5/7 Identification Accuracy**: 60.2% (identifying good players with a 3.0+ predicted value threshold)
 
-**Note**: We prioritize rank correlation over absolute score accuracy because the inherent noise in career outcomes means absolute scores will always appear "lower" than they actually are. The 0.511 correlation indicates the model successfully ranks prospects in order of their career potential.
-
-**Important Context**: These results are actually quite strong for NBA draft prediction. Pure statistical models will never perfectly predict NBA success due to the countless intangible factors (work ethic, injury luck, team fit, coaching, etc.). A 0.511 correlation means the model captures meaningful patterns that translate to real-world draft value.
+**Note**: We prioritize rank correlation over absolute score accuracy because the inherent noise in career outcomes means absolute scores will always appear "lower" than they actually are. Pure statistical models will never perfectly predict NBA success due to countless intangible factors (work ethic, injury luck, team fit, coaching, etc.).
 
 ### Performance Visualizations
 
@@ -61,25 +59,25 @@ Based on historical data from 2011-2021 drafts, the model demonstrates strong pr
 
 ![Predicted vs Actual Tiers](predicted_vs_actual.png)
 
-This scatter plot shows how well the model's predictions align with actual career outcomes. While the scatter may appear "messy" with many points far from the diagonal, this is expected and normal for NBA draft prediction. The key insight is that players predicted as high-tier (top-right quadrant) are significantly more likely to become successful NBA players than those predicted as low-tier (bottom-left quadrant). The model's value lies in its ability to rank prospects, not predict exact career outcomes.
+This scatter plot shows how well the model's predictions align with actual career outcomes. While the scatter may appear "messy" with many points far from the diagonal, this is expected and normal for NBA draft prediction. The key insight is that players predicted as high-tier are certainly at least slightly more likely to become successful than those predicted as low-tier.
 
 #### 2. Prediction Error Distribution
 
 ![Error Distribution](error_distribution.png)
 
-This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes, which is reasonable given the inherent uncertainty in NBA careers. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
+This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes, which is reasonable. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
 
 #### 3. MAE by Position Group
 
 ![MAE by Position](mae_by_position.png)
 
-This bar chart shows the Mean Absolute Error (MAE) for each position group. Big men typically show higher MAE due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
+Big men typically show higher mean absolute error due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
 
 #### 4. Top-Tier Identification Confusion Matrix
 
 ![Confusion Matrix](confusion_matrix.png)
 
-This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars. While this may seem low, it's actually quite strong for draft prediction and NBA teams would be thrilled with a 60% success rate on high-tier player identification.
+This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars.
 
 ### Key Findings
 
