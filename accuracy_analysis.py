@@ -214,27 +214,35 @@ def print_results(metrics, top_tier_metrics, tier_accuracies, position_metrics, 
         print(f"{tier:7}: {tier_metrics['accuracy']:.1%} (n={tier_metrics['count']})")
 
 def create_visualizations(df):
-    """Create visualizations of the results"""
-    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    """Create visualizations of the results as separate images"""
     
-    # Scatter plot of predicted vs actual
-    axes[0, 0].scatter(df['Actual Tier'], df['Predicted Score'], alpha=0.6)
-    axes[0, 0].plot([0, 7], [0, 7], 'r--', alpha=0.8)
-    axes[0, 0].set_xlabel('Actual Tier')
-    axes[0, 0].set_ylabel('Predicted Score')
-    axes[0, 0].set_title('Predicted vs Actual Tiers')
-    axes[0, 0].grid(True, alpha=0.3)
+    # 1. Scatter plot of predicted vs actual
+    plt.figure(figsize=(10, 8))
+    plt.scatter(df['Actual Tier'], df['Predicted Score'], alpha=0.6)
+    plt.plot([0, 7], [0, 7], 'r--', alpha=0.8)
+    plt.xlabel('Actual Tier')
+    plt.ylabel('Predicted Score')
+    plt.title('Predicted vs Actual Tiers')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('predicted_vs_actual.png', dpi=300, bbox_inches='tight')
+    plt.close()
     
-    # Error distribution
+    # 2. Error distribution
+    plt.figure(figsize=(10, 8))
     errors = df['Predicted Score'] - df['Actual Tier']
-    axes[0, 1].hist(errors, bins=20, alpha=0.7, edgecolor='black')
-    axes[0, 1].axvline(0, color='red', linestyle='--', alpha=0.8)
-    axes[0, 1].set_xlabel('Prediction Error')
-    axes[0, 1].set_ylabel('Frequency')
-    axes[0, 1].set_title('Prediction Error Distribution')
-    axes[0, 1].grid(True, alpha=0.3)
+    plt.hist(errors, bins=20, alpha=0.7, edgecolor='black')
+    plt.axvline(0, color='red', linestyle='--', alpha=0.8)
+    plt.xlabel('Prediction Error')
+    plt.ylabel('Frequency')
+    plt.title('Prediction Error Distribution')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('error_distribution.png', dpi=300, bbox_inches='tight')
+    plt.close()
     
-    # Accuracy by position
+    # 3. Accuracy by position
+    plt.figure(figsize=(10, 8))
     position_errors = []
     position_names = []
     for position in df['Position Group'].unique():
@@ -243,12 +251,16 @@ def create_visualizations(df):
         position_errors.append(mae)
         position_names.append(position)
     
-    axes[1, 0].bar(position_names, position_errors)
-    axes[1, 0].set_ylabel('Mean Absolute Error')
-    axes[1, 0].set_title('MAE by Position Group')
-    axes[1, 0].grid(True, alpha=0.3)
+    plt.bar(position_names, position_errors)
+    plt.ylabel('Mean Absolute Error')
+    plt.title('MAE by Position Group')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig('mae_by_position.png', dpi=300, bbox_inches='tight')
+    plt.close()
     
-    # Top-tier identification confusion matrix
+    # 4. Top-tier identification confusion matrix
+    plt.figure(figsize=(8, 6))
     top_tier_threshold = 5
     actual_top_tier = df['Actual Tier'] >= top_tier_threshold
     predicted_top_tier = df['Predicted Score'] >= top_tier_threshold
@@ -257,15 +269,13 @@ def create_visualizations(df):
     cm = confusion_matrix(actual_top_tier, predicted_top_tier)
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
                 xticklabels=['Not Top-Tier', 'Top-Tier'],
-                yticklabels=['Not Top-Tier', 'Top-Tier'],
-                ax=axes[1, 1])
-    axes[1, 1].set_title('Top-Tier Identification Confusion Matrix')
-    axes[1, 1].set_xlabel('Predicted')
-    axes[1, 1].set_ylabel('Actual')
-    
+                yticklabels=['Not Top-Tier', 'Top-Tier'])
+    plt.title('Top-Tier Identification Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
     plt.tight_layout()
-    plt.savefig('accuracy_analysis.png', dpi=300, bbox_inches='tight')
-    plt.show()
+    plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+    plt.close()
 
 def main():
     """Main analysis function"""
@@ -312,7 +322,11 @@ def main():
     }
     
     pd.DataFrame(results_summary).to_csv('accuracy_summary.csv', index=False)
-    print("\n✅ Results saved to 'accuracy_summary.csv' and 'accuracy_analysis.png'")
+    print("\n✅ Results saved to 'accuracy_summary.csv' and 4 separate visualization images:")
+    print("   - predicted_vs_actual.png")
+    print("   - error_distribution.png") 
+    print("   - mae_by_position.png")
+    print("   - confusion_matrix.png")
 
 if __name__ == "__main__":
     main()
