@@ -17,11 +17,13 @@ Players are split into general positions (guards, wings, bigs) and passed into p
 - NBA team stats during their draft year
 - College team stats during their final season
 
-**Career Scoring System**: A proprietary scoring system was developed to evaluate NBA career success:
+It was ultimately determined that this was too much noise, and final college season stats were sufficient.
+
+**Career Scoring System**: A scoring system was developed to evaluate NBA career success:
 ```
 Career Score = (0.5 × Games Started % + 0.3 × Points/G + 0.2 × Assists/G + 0.2 × Rebounds/G)
 ```
-This score is normalized to a 0-100 scale and mapped to career tiers:
+This score is normalized to a 0-100 scale and mapped to career tiers, then manually adjusted:
 - **Tier 0**: Scrub (≤2 NBA seasons or score <26)
 - **Tier 3**: Rotational Player (score 64-80)
 - **Tier 5**: Strong Starter (score 80-90)
@@ -38,13 +40,13 @@ Each model uses position-optimized features including per-40-minute statistics t
 
 ### Performance Metrics
 
-Based on historical data from 2011-2021 drafts, the model demonstrates strong predictive capabilities:
+Based on 2011-2021 drafts:
 
 - **Overall Correlation**: 0.511 (rank correlation between predicted and actual career tiers)
 - **Mean Absolute Error**: 1.68 tiers
 - **Tier 5/7 Identification Accuracy**: 60.2% (identifying good players with a 3.0+ predicted value threshold)
 
-**Note**: We prioritize rank correlation over absolute score accuracy because the inherent noise in career outcomes means absolute scores will always appear "lower" than they actually are. Pure statistical models will never perfectly predict NBA success due to countless intangible factors (work ethic, injury luck, team fit, coaching, etc.).
+**Note**: Rank correlation is prioritized over absolute score accuracy because the inherent noise in career outcomes means absolute scores will always appear "lower" than they actually are. Pure statistical models will never perfectly predict NBA success due to countless intangible factors (work ethic, injury luck, team fit, coaching, etc.).
 
 ### Performance Visualizations
 
@@ -58,7 +60,7 @@ This scatter plot shows how well the model's predictions align with actual caree
 
 ![Error Distribution](error_distribution.png)
 
-This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes, which is reasonable. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
+This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
 
 #### 3. MAE by Position Group
 
