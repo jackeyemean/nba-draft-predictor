@@ -52,25 +52,25 @@ Based on 2011-2021 drafts:
 
 #### 1. Predicted vs Actual Tiers
 
-![Predicted vs Actual Tiers](predicted_vs_actual.png)
+![Predicted vs Actual Tiers](results/graphs/predicted_vs_actual.png)
 
 This scatter plot shows how well the model's predictions align with actual career outcomes. While the scatter may appear "messy" with many points far from the diagonal, this is expected and normal for NBA draft prediction. The key insight is that players predicted as high-tier are certainly at least slightly more likely to become successful than those predicted as low-tier.
 
 #### 2. Prediction Error Distribution
 
-![Error Distribution](error_distribution.png)
+![Error Distribution](results/graphs/error_distribution.png)
 
 This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
 
 #### 3. MAE by Position Group
 
-![MAE by Position](mae_by_position.png)
+![MAE by Position](results/graphs/mae_by_position.png)
 
 Big men typically show higher mean absolute error due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
 
 #### 4. Top-Tier Identification Confusion Matrix
 
-![Confusion Matrix](confusion_matrix.png)
+![Confusion Matrix](results/graphs/confusion_matrix.png)
 
 This heatmap shows the model's ability to differentiate top-tier players (Tier 5+) from average/subpar players. The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars.
 
