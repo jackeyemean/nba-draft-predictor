@@ -66,7 +66,7 @@ This histogram displays the distribution of prediction errors (predicted tier - 
 
 ![MAE by Position](results/graphs/mae_by_position.png)
 
-Big men typically show higher mean absolute error due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
+Relatively similar across all positions, but it is worth noting that Guards and Wings tend to have higher predicted scores than Big men due to the smaller sample size.
 
 #### 4. Top-Tier Identification Confusion Matrix
 
