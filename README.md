@@ -70,7 +70,7 @@ Big men typically show higher mean absolute error due to smaller sample sizes an
 
 ![Confusion Matrix](confusion_matrix.png)
 
-This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars.
+This heatmap shows the model's ability to differentiate top-tier players (Tier 5+) from average/subpar players. The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars.
 
 ### Key Findings
 
