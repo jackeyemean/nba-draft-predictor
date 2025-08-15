@@ -8,13 +8,6 @@ Prospects were predicted using random forest regressors trained on data scraped 
 
 Players are split into general positions (guards, wings, bigs) and passed into position-specific models trained on college prospects drafted from 2011-2021. The predictions displayed for 2011-2021 drafts were done using leave-one-out cross validation.
 
-For those who are interested in the:
-
-- [Scraper](scraper/README.md)  
-- [Models](models/README.md)  
-- [Frontend](web/frontend/README.md)  
-- [Backend](web/backend/README.md)
-
 ## Methodology
 
 **Data Collection**: Each prospect had comprehensive data scraped including:
