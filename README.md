@@ -8,6 +8,13 @@ Prospects were predicted using random forest regressors trained on data scraped 
 
 Players are split into general positions (guards, wings, bigs) and passed into position-specific models trained on college prospects drafted from 2011-2021. The predictions displayed for 2011-2021 drafts were done using leave-one-out cross validation.
 
+For those who are interested in the:
+
+- [Scraper](scraper/README.md)  
+- [Models](models/README.md)  
+- [Frontend](web/frontend/README.md)  
+- [Backend](web/backend/README.md)
+
 ## Model Performance & Results
 
 ### Methodology
@@ -63,6 +70,20 @@ This bar chart shows the Mean Absolute Error (MAE) for each position group. Big 
 
 #### 4. Top-Tier Identification Confusion Matrix (`confusion_matrix.png`)
 This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars. While this may seem low, it's actually quite strong for draft prediction and NBA teams would be thrilled with a 60% success rate on high-tier player identification.
+
+### Visualization Examples
+
+![Predicted vs Actual Tiers](predicted_vs_actual.png)
+*Predicted vs Actual Tiers - Shows correlation between model predictions and actual career outcomes*
+
+![Error Distribution](error_distribution.png)
+*Prediction Error Distribution - Displays the spread of prediction errors*
+
+![MAE by Position](mae_by_position.png)
+*MAE by Position Group - Shows prediction accuracy across different positions*
+
+![Confusion Matrix](confusion_matrix.png)
+*Top-Tier Identification Confusion Matrix - Demonstrates ability to identify high-potential players*
 
 ### Key Findings
 
