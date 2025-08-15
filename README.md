@@ -15,9 +15,7 @@ For those who are interested in the:
 - [Frontend](web/frontend/README.md)  
 - [Backend](web/backend/README.md)
 
-## Model Performance & Results
-
-### Methodology
+## Methodology
 
 **Data Collection**: Each prospect had comprehensive data scraped including:
 - NBA career stats
@@ -43,6 +41,8 @@ This score is normalized to a 0-100 scale and mapped to career tiers:
 
 Each model uses position-optimized features including per-40-minute statistics to account for playing time variations.
 
+## Model Performance & Results
+
 ### Performance Metrics
 
 Based on historical data from 2011-2021 drafts, the model demonstrates strong predictive capabilities:
@@ -57,33 +57,29 @@ Based on historical data from 2011-2021 drafts, the model demonstrates strong pr
 
 ### Performance Visualizations
 
-The model generates four key visualizations that demonstrate its predictive capabilities:
-
-#### 1. Predicted vs Actual Tiers (`predicted_vs_actual.png`)
-This scatter plot shows how well the model's predictions align with actual career outcomes. While the scatter may appear "messy" with many points far from the diagonal, this is expected and normal for NBA draft prediction. The key insight is that players predicted as high-tier (top-right quadrant) are significantly more likely to become successful NBA players than those predicted as low-tier (bottom-left quadrant). The model's value lies in its ability to rank prospects, not predict exact career outcomes.
-
-#### 2. Prediction Error Distribution (`error_distribution.png`)
-This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes, which is reasonable given the inherent uncertainty in NBA careers. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
-
-#### 3. MAE by Position Group (`mae_by_position.png`)
-This bar chart shows the Mean Absolute Error (MAE) for each position group. Big men typically show higher MAE due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
-
-#### 4. Top-Tier Identification Confusion Matrix (`confusion_matrix.png`)
-This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars. While this may seem low, it's actually quite strong for draft prediction and NBA teams would be thrilled with a 60% success rate on high-tier player identification.
-
-### Visualization Examples
+#### 1. Predicted vs Actual Tiers
 
 ![Predicted vs Actual Tiers](predicted_vs_actual.png)
-*Predicted vs Actual Tiers - Shows correlation between model predictions and actual career outcomes*
+
+This scatter plot shows how well the model's predictions align with actual career outcomes. While the scatter may appear "messy" with many points far from the diagonal, this is expected and normal for NBA draft prediction. The key insight is that players predicted as high-tier (top-right quadrant) are significantly more likely to become successful NBA players than those predicted as low-tier (bottom-left quadrant). The model's value lies in its ability to rank prospects, not predict exact career outcomes.
+
+#### 2. Prediction Error Distribution
 
 ![Error Distribution](error_distribution.png)
-*Prediction Error Distribution - Displays the spread of prediction errors*
+
+This histogram displays the distribution of prediction errors (predicted tier - actual tier). The distribution shows that most predictions fall within ±2 tiers of actual outcomes, which is reasonable given the inherent uncertainty in NBA careers. The slight rightward skew suggests the model tends to be slightly optimistic about prospects, which is common in draft evaluation.
+
+#### 3. MAE by Position Group
 
 ![MAE by Position](mae_by_position.png)
-*MAE by Position Group - Shows prediction accuracy across different positions*
+
+This bar chart shows the Mean Absolute Error (MAE) for each position group. Big men typically show higher MAE due to smaller sample sizes and the evolving role of centers in modern basketball. Guards and wings show more consistent prediction accuracy, likely due to larger training datasets and more stable position requirements.
+
+#### 4. Top-Tier Identification Confusion Matrix
 
 ![Confusion Matrix](confusion_matrix.png)
-*Top-Tier Identification Confusion Matrix - Demonstrates ability to identify high-potential players*
+
+This heatmap shows the model's ability to identify top-tier players (Tier 5+). The 60.2% accuracy means the model correctly identifies about 3 out of 5 future strong starters and all-stars. While this may seem low, it's actually quite strong for draft prediction and NBA teams would be thrilled with a 60% success rate on high-tier player identification.
 
 ### Key Findings
 
